@@ -21,7 +21,7 @@ public class TipoResiduoController {
     private TipoResiduoService tipoResiduoService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<TipoResiduo> guardar(@RequestBody TipoResiduoDTO tipoResiduoDTO) {
         if (tipoResiduoDTO.getNombre() == null || tipoResiduoDTO.getNombre().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -29,12 +29,12 @@ public class TipoResiduoController {
         return new ResponseEntity<>(tipoResiduoService.crear(tipoResiduoDTO.getNombre()), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<TipoResiduo>> listarTodos() {
         return ResponseEntity.ok(tipoResiduoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<TipoResiduo> buscarPorId(@PathVariable Long id) {
         return tipoResiduoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -42,7 +42,7 @@ public class TipoResiduoController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<TipoResiduo>  actualizar(@PathVariable Long id, @RequestBody TipoResiduoDTO tipoResiduoDTO) {
         if (tipoResiduoDTO.getNombre() == null || tipoResiduoDTO.getNombre().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -54,7 +54,7 @@ public class TipoResiduoController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         tipoResiduoService.eliminar(id);
         return ResponseEntity.noContent().build();
