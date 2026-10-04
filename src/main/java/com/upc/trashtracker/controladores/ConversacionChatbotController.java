@@ -37,7 +37,7 @@ public class ConversacionChatbotController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/actaulizar/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<ConversacionChatbot> actualizar(@PathVariable Long id, @RequestBody ConversacionChatbotDTO conversacionChatbotDTO) {
         return ResponseEntity.ok(conversacionChatbotService.actualizar(id, conversacionChatbotDTO));
     }
