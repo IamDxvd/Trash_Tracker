@@ -21,17 +21,17 @@ public class HistorialPuntosController {
     private HistorialPuntosService historialPuntosService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<HistorialPuntos> guardar(@RequestBody HistorialPuntosDTO historialPuntosDTO) {
         return new ResponseEntity<>(historialPuntosService.guardar(historialPuntosDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listado")
     public ResponseEntity<List<HistorialPuntos>> listarTodos() {
         return ResponseEntity.ok(historialPuntosService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<HistorialPuntos> buscarPorId(@PathVariable Long id) {
         return historialPuntosService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -39,13 +39,13 @@ public class HistorialPuntosController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
+    @PutMapping("/modificar/{id}")
     public ResponseEntity<HistorialPuntos> actualizar(@PathVariable Long id, @RequestBody HistorialPuntosDTO historialPuntosDTO) {
         return ResponseEntity.ok(historialPuntosService.actualizar(id, historialPuntosDTO));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/borrar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         historialPuntosService.eliminar(id);
         return ResponseEntity.noContent().build();
