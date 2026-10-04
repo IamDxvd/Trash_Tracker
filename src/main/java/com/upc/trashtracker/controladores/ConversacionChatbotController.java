@@ -20,29 +20,29 @@ public class ConversacionChatbotController {
     @Autowired
     private ConversacionChatbotService conversacionChatbotService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<ConversacionChatbot> guardar(@RequestBody ConversacionChatbotDTO conversacionChatbotDTO) {
         return new ResponseEntity<>(conversacionChatbotService.guardar(conversacionChatbotDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<ConversacionChatbot>> listarTodos() {
         return ResponseEntity.ok(conversacionChatbotService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<ConversacionChatbot> buscarPorId(@PathVariable Long id) {
         return conversacionChatbotService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<ConversacionChatbot> actualizar(@PathVariable Long id, @RequestBody ConversacionChatbotDTO conversacionChatbotDTO) {
         return ResponseEntity.ok(conversacionChatbotService.actualizar(id, conversacionChatbotDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         conversacionChatbotService.eliminar(id);
         return ResponseEntity.noContent().build();

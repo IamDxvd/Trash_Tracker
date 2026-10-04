@@ -21,29 +21,29 @@ public class CanjeController {
     @Autowired
     private CanjeService canjeService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Canje> guardar(@RequestBody CanjeDTO canjeDTO) {
         return new ResponseEntity<>(canjeService.guardar(canjeDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Canje>> listarTodos() {
         return ResponseEntity.ok(canjeService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Canje> buscarPorId(@PathVariable Long id) {
         return canjeService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Canje> actualizar(@PathVariable Long id, @RequestBody CanjeDTO canjeDTO) {
         return ResponseEntity.ok(canjeService.actualizar(id, canjeDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         canjeService.eliminar(id);
         return ResponseEntity.noContent().build();

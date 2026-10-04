@@ -20,29 +20,29 @@ public class DispositivoConocidoController {
     @Autowired
     private DispositivoConocidoService dispositivoConocidoService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<DispositivoConocido> guardar(@RequestBody DispositivoConocidoDTO dispositivoConocidoDTO) {
         return new ResponseEntity<>(dispositivoConocidoService.guardar(dispositivoConocidoDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<DispositivoConocido>> listarTodos() {
         return ResponseEntity.ok(dispositivoConocidoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<DispositivoConocido> buscarPorId(@PathVariable Long id) {
         return dispositivoConocidoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<DispositivoConocido> actualizar(@PathVariable Long id, @RequestBody DispositivoConocidoDTO dispositivoConocidoDTO) {
         return ResponseEntity.ok(dispositivoConocidoService.actualizar(id, dispositivoConocidoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         dispositivoConocidoService.eliminar(id);
         return ResponseEntity.noContent().build();

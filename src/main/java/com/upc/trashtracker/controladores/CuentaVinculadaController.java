@@ -20,29 +20,29 @@ public class CuentaVinculadaController {
     @Autowired
     private CuentaVinculadaService cuentaVinculadaService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<CuentaVinculada> guardar(@RequestBody CuentaVinculadaDTO cuentaVinculadaDTO) {
         return new ResponseEntity<>(cuentaVinculadaService.guardar(cuentaVinculadaDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<CuentaVinculada>> listarTodos() {
         return ResponseEntity.ok(cuentaVinculadaService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<CuentaVinculada> buscarPorId(@PathVariable Long id) {
         return cuentaVinculadaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<CuentaVinculada> actualizar(@PathVariable Long id, @RequestBody CuentaVinculadaDTO cuentaVinculadaDTO) {
         return ResponseEntity.ok(cuentaVinculadaService.actualizar(id, cuentaVinculadaDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         cuentaVinculadaService.eliminar(id);
         return ResponseEntity.noContent().build();

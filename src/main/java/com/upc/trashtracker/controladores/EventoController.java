@@ -20,29 +20,29 @@ public class EventoController {
     @Autowired
     private EventoService eventoService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Evento> guardar(@RequestBody EventoDTO eventoDTO) {
         return new ResponseEntity<>(eventoService.guardar(eventoDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Evento>> listarTodos() {
         return ResponseEntity.ok(eventoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Evento> buscarPorId(@PathVariable Long id) {
         return eventoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Evento> actualizar(@PathVariable Long id, @RequestBody EventoDTO eventoDTO) {
         return ResponseEntity.ok(eventoService.actualizar(id, eventoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         eventoService.eliminar(id);
         return ResponseEntity.noContent().build();

@@ -20,29 +20,29 @@ public class AsistenciaEventoController {
     @Autowired
     private AsistenciaEventoService asistenciaEventoService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<AsistenciaEvento> guardar(@RequestBody AsistenciaEventoDTO asistenciaEventoDTO) {
         return new ResponseEntity<>(asistenciaEventoService.guardar(asistenciaEventoDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<AsistenciaEvento>> listarTodos() {
         return ResponseEntity.ok(asistenciaEventoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<AsistenciaEvento> buscarPorId(@PathVariable Long id) {
         return asistenciaEventoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<AsistenciaEvento> actualizar(@PathVariable Long id, @RequestBody AsistenciaEventoDTO asistenciaEventoDTO) {
         return ResponseEntity.ok(asistenciaEventoService.actualizar(id, asistenciaEventoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         asistenciaEventoService.eliminar(id);
         return ResponseEntity.noContent().build();
