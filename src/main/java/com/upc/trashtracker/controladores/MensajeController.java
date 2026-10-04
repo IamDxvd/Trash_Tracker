@@ -20,12 +20,12 @@ public class MensajeController {
     @Autowired
     private MensajeService mensajeService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Mensaje> guardar(@RequestBody MensajeDTO mensajeDTO) {
         return new ResponseEntity<>(mensajeService.guardar(mensajeDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Mensaje>> listarTodos() {
         return ResponseEntity.ok(mensajeService.listarTodos());
     }
