@@ -20,12 +20,12 @@ public class MensajeChatbotController {
     @Autowired
     private MensajeChatbotService mensajeChatbotService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<MensajeChatbot> guardar(@RequestBody MensajeChatbotDTO mensajeChatbotDTO) {
         return new ResponseEntity<>(mensajeChatbotService.guardar(mensajeChatbotDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<MensajeChatbot>> listarTodos() {
         return ResponseEntity.ok(mensajeChatbotService.listarTodos());
     }
