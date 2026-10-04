@@ -21,17 +21,17 @@ public class RecompensaController {
     private RecompensaService recompensaService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Recompensa> guardar(@RequestBody RecompensaDTO recompensaDTO) {
         return new ResponseEntity<>(recompensaService.guardar(recompensaDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Recompensa>> listarTodos() {
         return ResponseEntity.ok(recompensaService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Recompensa> buscarPorId(@PathVariable Long id) {
         return recompensaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -39,7 +39,7 @@ public class RecompensaController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Recompensa> actualizar(@PathVariable Long id, @RequestBody RecompensaDTO recompensaDTO) {
         return recompensaService.actualizar(id, recompensaDTO)
                 .map(ResponseEntity::ok)
@@ -47,7 +47,7 @@ public class RecompensaController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         recompensaService.eliminar(id);
         return ResponseEntity.noContent().build();
