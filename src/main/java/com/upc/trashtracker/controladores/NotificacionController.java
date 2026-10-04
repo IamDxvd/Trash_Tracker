@@ -20,12 +20,12 @@ public class NotificacionController {
     @Autowired
     private NotificacionService notificacionService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Notificacion> guardar(@RequestBody NotificacionDTO notificacionDTO) {
         return new ResponseEntity<>(notificacionService.guardar(notificacionDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Notificacion>> listarTodos() {
         return ResponseEntity.ok(notificacionService.listarTodos());
     }
