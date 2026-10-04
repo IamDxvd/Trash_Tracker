@@ -20,12 +20,12 @@ public class MiembroGrupoController {
     @Autowired
     private MiembroGrupoService miembroGrupoService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<MiembroGrupo> guardar(@RequestBody MiembroGrupoDTO miembroGrupoDTO) {
         return new ResponseEntity<>(miembroGrupoService.guardar(miembroGrupoDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<MiembroGrupo>> listarTodos() {
         return ResponseEntity.ok(miembroGrupoService.listarTodos());
     }

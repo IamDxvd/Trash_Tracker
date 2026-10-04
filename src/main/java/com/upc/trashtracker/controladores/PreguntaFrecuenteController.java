@@ -21,12 +21,12 @@ public class PreguntaFrecuenteController {
     private PreguntaFrecuenteService preguntaFrecuenteService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<PreguntaFrecuente> guardar(@RequestBody PreguntaFrecuenteDTO preguntaFrecuenteDTO) {
         return new ResponseEntity<>(preguntaFrecuenteService.guardar(preguntaFrecuenteDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<PreguntaFrecuente>> listarTodos() {
         return ResponseEntity.ok(preguntaFrecuenteService.listarTodos());
     }
