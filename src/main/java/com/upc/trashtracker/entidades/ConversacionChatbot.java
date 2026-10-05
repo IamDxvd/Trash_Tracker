@@ -31,7 +31,7 @@ public class ConversacionChatbot {
     @JsonBackReference
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "conversacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Mensaje> mensajes = new ArrayList<>();
+    private List<MensajeChatbot> mensajes = new ArrayList<>();
 }
