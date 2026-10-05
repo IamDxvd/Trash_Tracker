@@ -20,29 +20,29 @@ public class GrupoController {
     @Autowired
     private GrupoService grupoService;
 
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<Grupo> guardar(@RequestBody GrupoDTO grupoDTO) {
         return new ResponseEntity<>(grupoService.guardar(grupoDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listado")
     public ResponseEntity<List<Grupo>> listarTodos() {
         return ResponseEntity.ok(grupoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Grupo> buscarPorId(@PathVariable Long id) {
         return grupoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/modificar/{id}")
     public ResponseEntity<Grupo> actualizar(@PathVariable Long id, @RequestBody GrupoDTO grupoDTO) {
         return ResponseEntity.ok(grupoService.actualizar(id, grupoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/borrar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         grupoService.eliminar(id);
         return ResponseEntity.noContent().build();

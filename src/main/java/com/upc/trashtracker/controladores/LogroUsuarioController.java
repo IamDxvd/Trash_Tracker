@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Endpoints REST para LogroUsuario.
+ * Base: /api/logro-usuario
+ */
 @RestController
 @RequestMapping("/api/logro-usuario")
 @PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
@@ -21,17 +25,17 @@ public class LogroUsuarioController {
     private LogroUsuarioService logroUsuarioService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<LogroUsuario> guardar(@RequestBody LogroUsuarioDTO logroUsuarioDTO) {
         return new ResponseEntity<>(logroUsuarioService.guardar(logroUsuarioDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listado")
     public ResponseEntity<List<LogroUsuario>> listarTodos() {
         return ResponseEntity.ok(logroUsuarioService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<LogroUsuario> buscarPorId(@PathVariable Long id) {
         return logroUsuarioService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -39,13 +43,13 @@ public class LogroUsuarioController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
+    @PutMapping("/modificar/{id}")
     public ResponseEntity<LogroUsuario> actualizar(@PathVariable Long id, @RequestBody LogroUsuarioDTO logroUsuarioDTO) {
         return ResponseEntity.ok(logroUsuarioService.actualizar(id, logroUsuarioDTO));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/borrar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         logroUsuarioService.eliminar(id);
         return ResponseEntity.noContent().build();

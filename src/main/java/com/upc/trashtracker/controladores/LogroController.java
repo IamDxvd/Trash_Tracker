@@ -21,17 +21,17 @@ public class LogroController {
     private LogroService logroService;
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<Logro> guardar(@RequestBody LogroDTO logroDTO) {
         return new ResponseEntity<>(logroService.guardar(logroDTO), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listado")
     public ResponseEntity<List<Logro>> listarTodos() {
         return ResponseEntity.ok(logroService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Logro> buscarPorId(@PathVariable Long id) {
         return logroService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -39,13 +39,13 @@ public class LogroController {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/{id}")
+    @PutMapping("/modificar/{id}")
     public ResponseEntity<Logro> actualizar(@PathVariable Long id, @RequestBody LogroDTO logroDTO) {
         return ResponseEntity.ok(logroService.actualizar(id, logroDTO));
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/borrar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         logroService.eliminar(id);
         return ResponseEntity.noContent().build();
