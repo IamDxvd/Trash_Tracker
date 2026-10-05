@@ -21,7 +21,7 @@ public class RolController {
     @Autowired
     private RolService rolService;
 
-    @PostMapping
+    @PostMapping("/insertar")
     public ResponseEntity<Rol> guardar(@RequestBody RolDTO rolDTO) {
         if (rolDTO.getNombreRol() == null || rolDTO.getNombreRol().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -30,19 +30,19 @@ public class RolController {
         return new ResponseEntity<>(rolService.crear(rolDTO.getNombreRol(), rolDTO.getDescripcion()), HttpStatus.CREATED);
     }
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<List<Rol>> listarTodos() {
         return ResponseEntity.ok(rolService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Rol> buscarPorId(@PathVariable Long id) {
         return rolService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Rol> actualizar(@PathVariable Long id, @RequestBody RolDTO rolDTO) {
         if (id == 1 || id == 2) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -53,7 +53,7 @@ public class RolController {
         return ResponseEntity.ok(rolService.actualizarDatos(id, rolDTO.getNombreRol(), rolDTO.getDescripcion()));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (id == 1 || id == 2) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

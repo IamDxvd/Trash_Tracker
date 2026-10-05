@@ -24,7 +24,7 @@ public class ReporteController {
     @Autowired
     private ReporteService reporteService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/insertar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReporteResponse> crear(
             @RequestParam("foto") MultipartFile foto,
             @ParameterObject @ModelAttribute ReporteRequest request) {
@@ -32,19 +32,19 @@ public class ReporteController {
         return new ResponseEntity<>(creado, HttpStatus.CREATED);
     }
 
-    @GetMapping("/me")
+    @GetMapping("/listar")
     public ResponseEntity<List<ReporteResponse>> misReportes(@RequestParam Long usuarioId) {
         return ResponseEntity.ok(reporteService.listarPorUsuario(usuarioId));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable("id") Long idReporte,
                                          @RequestParam Long usuarioId) {
         reporteService.eliminarReporte(idReporte, usuarioId);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/notify-confirmation")
+    @PostMapping("/notificar-confirmacion/{id}")
     public ResponseEntity<Notificacion> notificarConfirmacion(@PathVariable("id") Long idReporte) {
         Notificacion notificacion = reporteService.enviarConfirmacion(idReporte);
         return new ResponseEntity<>(notificacion, HttpStatus.CREATED);
