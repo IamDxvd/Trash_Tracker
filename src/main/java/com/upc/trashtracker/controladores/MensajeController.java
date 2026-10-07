@@ -30,19 +30,19 @@ public class MensajeController {
         return ResponseEntity.ok(mensajeService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Mensaje> buscarPorId(@PathVariable Long id) {
         return mensajeService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Mensaje> actualizar(@PathVariable Long id, @RequestBody MensajeDTO mensajeDTO) {
         return ResponseEntity.ok(mensajeService.actualizar(id, mensajeDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         mensajeService.eliminar(id);
         return ResponseEntity.noContent().build();
