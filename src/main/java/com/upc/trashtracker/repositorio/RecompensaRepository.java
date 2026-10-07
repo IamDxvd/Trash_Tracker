@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RecompensaRepository extends JpaRepository<Recompensa, Long> {
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select e from Recompensa e where e.idRecompensa = :id")
+    java.util.Optional<Recompensa> buscarParaActualizar(@org.springframework.data.repository.query.Param("id") Long id);
 }

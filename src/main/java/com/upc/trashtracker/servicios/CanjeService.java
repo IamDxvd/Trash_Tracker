@@ -1,5 +1,9 @@
 package com.upc.trashtracker.servicios;
 
+import com.upc.trashtracker.dto.CanjeRequestDTO;
+import com.upc.trashtracker.dto.CanjeResponseDTO;
+import com.upc.trashtracker.entidades.HistorialPuntos;
+import com.upc.trashtracker.repositorio.HistorialPuntosRepository;
 import com.upc.trashtracker.dto.CanjeDTO;
 import com.upc.trashtracker.entidades.Canje;
 import com.upc.trashtracker.entidades.Recompensa;
@@ -82,5 +86,69 @@ public class CanjeService {
     @Transactional
     public void eliminar(Long id) {
         canjeRepository.deleteById(id);
+    }
+
+    // Funciones adicionales integradas del backend unificado.
+    @Autowired
+    private HistorialPuntosRepository historialPuntosRepository;
+
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("@accesoIntegracion.esPropietario(#request.idUsuario)")
+    public CanjeResponseDTO realizarCanje(CanjeRequestDTO request) {
+        // 1. Validar Usuario
+        Usuario usuario = usuarioRepository.buscarParaActualizar(request.getIdUsuario())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + request.getIdUsuario()));
+
+        // 2. Validar Recompensa
+        Recompensa recompensa = recompensaRepository.buscarParaActualizar(request.getIdRecompensa())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Recompensa no encontrada con ID: " + request.getIdRecompensa()));
+
+        if (recompensa.getCostoPuntos() == null || recompensa.getCostoPuntos() <= 0) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Costo de recompensa invalido");
+        }
+        // 3. Validar Stock
+        if (recompensa.getStock() == null || recompensa.getStock() <= 0) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "La recompensa seleccionada no cuenta con stock disponible");
+        }
+
+        // 4. Validar Puntos del Usuario
+        int puntosActuales = usuario.getPuntosTotales() != null ? usuario.getPuntosTotales() : 0;
+        if (puntosActuales < recompensa.getCostoPuntos()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Puntos insuficientes para canjear esta recompensa");
+        }
+
+        // 5. Actualizar Puntos y Stock
+        usuario.setPuntosTotales(puntosActuales - recompensa.getCostoPuntos());
+        recompensa.setStock(recompensa.getStock() - 1);
+
+        usuarioRepository.save(usuario);
+        recompensaRepository.save(recompensa);
+
+        // 6. Registrar la transacción de Canje
+        Canje canje = new Canje();
+        canje.setFecha(LocalDateTime.now());
+        canje.setEstado("COMPLETADO");
+        canje.setUsuario(usuario);
+        canje.setRecompensa(recompensa);
+        canje = canjeRepository.save(canje);
+
+        // 7. Registrar el movimiento negativo en HistorialPuntos
+        HistorialPuntos historial = new HistorialPuntos();
+        historial.setCantidad(-recompensa.getCostoPuntos());
+        historial.setMotivo("Canje de Recompensa: " + recompensa.getNombre());
+        historial.setFecha(LocalDateTime.now());
+        historial.setUsuario(usuario);
+        historialPuntosRepository.save(historial);
+
+        // 8. Construir Respuesta DTO
+        CanjeResponseDTO response = new CanjeResponseDTO();
+        response.setIdCanje(canje.getIdCanje());
+        response.setNombreRecompensa(recompensa.getNombre());
+        response.setPuntosConsumidos(recompensa.getCostoPuntos());
+        response.setPuntosRestantesUsuario(usuario.getPuntosTotales());
+        response.setEstado(canje.getEstado());
+        response.setFecha(canje.getFecha());
+
+        return response;
     }
 }

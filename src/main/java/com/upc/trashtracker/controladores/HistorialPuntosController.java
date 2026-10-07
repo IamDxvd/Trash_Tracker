@@ -1,5 +1,7 @@
 package com.upc.trashtracker.controladores;
 
+import com.upc.trashtracker.dto.PuntosRequestDTO;
+import com.upc.trashtracker.dto.PuntosResponseDTO;
 import com.upc.trashtracker.dto.HistorialPuntosDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -49,5 +51,10 @@ public class HistorialPuntosController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         historialPuntosService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/agregar-puntos")
+    public ResponseEntity<PuntosResponseDTO> insertarPuntos(@RequestBody PuntosRequestDTO request) {
+        return new ResponseEntity<>(historialPuntosService.insertarPuntos(request), HttpStatus.CREATED);
     }
 }

@@ -1,5 +1,7 @@
 package com.upc.trashtracker.controladores;
 
+import com.upc.trashtracker.dto.DesbloquearLogroRequestDTO;
+import com.upc.trashtracker.dto.LogroUsuarioResponseDTO;
 import com.upc.trashtracker.dto.LogroUsuarioDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -53,5 +55,15 @@ public class LogroUsuarioController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         logroUsuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/usuario/desbloquear-logro")
+    public ResponseEntity<LogroUsuarioResponseDTO> desbloquearLogro(@RequestBody DesbloquearLogroRequestDTO request) {
+        return new ResponseEntity<>(logroUsuarioService.desbloquearLogro(request), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<LogroUsuarioResponseDTO>> listarLogrosPorUsuario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(logroUsuarioService.listarLogrosPorUsuario(idUsuario));
     }
 }

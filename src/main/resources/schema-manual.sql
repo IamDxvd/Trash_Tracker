@@ -211,3 +211,36 @@ ALTER TABLE logro_usuario ADD CONSTRAINT fk_logro_usuario_logro_id FOREIGN KEY (
 ALTER TABLE notificacion ADD CONSTRAINT fk_notificacion_usuario_id FOREIGN KEY (usuario_id) REFERENCES usuario(id_usuario);
 ALTER TABLE conversacion_chatbot ADD CONSTRAINT fk_conversacion_chatbot_usuario_id FOREIGN KEY (usuario_id) REFERENCES usuario(id_usuario);
 ALTER TABLE mensaje_chatbot ADD CONSTRAINT fk_mensaje_chatbot_conversacion_id FOREIGN KEY (conversacion_id) REFERENCES conversacion_chatbot(id_conversacion_chatbot);
+
+-- =========================================================================
+-- [AGREGADO] Tablas de integracion (seguridad y ubicacion) que existen como
+-- entidades JPA pero no estaban en este script. Misma definicion que
+-- db/integracion-aditiva.sql. No modifica ninguna tabla anterior.
+-- =========================================================================
+DROP TABLE IF EXISTS estado_seguridad_usuario CASCADE;
+DROP TABLE IF EXISTS token_revocado CASCADE;
+DROP TABLE IF EXISTS token_recuperacion CASCADE;
+DROP TABLE IF EXISTS ubicacion_usuario CASCADE;
+
+CREATE TABLE ubicacion_usuario (
+                                   id_usuario BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                   latitud DOUBLE PRECISION NOT NULL CHECK (latitud BETWEEN -90 AND 90),
+                                   longitud DOUBLE PRECISION NOT NULL CHECK (longitud BETWEEN -180 AND 180)
+);
+
+CREATE TABLE token_recuperacion (
+                                    hash VARCHAR(64) PRIMARY KEY,
+                                    usuario_id BIGINT NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                    expira TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_token_recuperacion_usuario ON token_recuperacion(usuario_id);
+
+CREATE TABLE token_revocado (
+                                hash VARCHAR(64) PRIMARY KEY,
+                                expira TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE estado_seguridad_usuario (
+                                          usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                          tokens_invalidos_hasta TIMESTAMP WITH TIME ZONE NOT NULL
+);

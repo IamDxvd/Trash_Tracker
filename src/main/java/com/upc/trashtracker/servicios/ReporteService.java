@@ -1,5 +1,6 @@
 package com.upc.trashtracker.servicios;
 
+import java.util.Optional;
 import com.upc.trashtracker.dto.ReporteRequest;
 import com.upc.trashtracker.dto.ReporteResponse;
 import com.upc.trashtracker.entidades.Notificacion;
@@ -142,5 +143,75 @@ public class ReporteService {
                 r.getTipoResiduo() != null ? r.getTipoResiduo().getIdTipoResiduo() : null,
                 r.getTipoResiduo() != null ? r.getTipoResiduo().getNombre() : null
         );
+    }
+
+    // Funciones adicionales integradas del backend unificado.
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public Reporte guardar(Reporte reporte) {
+        return reporteRepository.save(reporte);
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
+    public List<Reporte> listarTodos() {
+        return reporteRepository.findAll();
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
+    public Optional<Reporte> buscarPorId(Long id) {
+        return reporteRepository.findById(id);
+    }
+
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public Reporte actualizar(Long id, Reporte reporte) {
+        reporte.setIdReporte(id);
+        return reporteRepository.save(reporte);
+    }
+
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public void eliminar(Long id) {
+        reporteRepository.deleteById(id);
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
+    public List<Reporte> listarMapa() {
+        return reporteRepository.findAll();
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
+    public List<Reporte> filtrarPorTipo(String tipo) {
+        return reporteRepository.findByTipoResiduoNombre(tipo);
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('CIUDADANO', 'ADMINISTRADOR')")
+    public List<Reporte> buscar(String texto) {
+        return reporteRepository.findByDescripcionContainingIgnoreCase(texto);
+    }
+
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public Reporte marcarLimpio(Long id) {
+        Reporte reporte = reporteRepository.findById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Reporte no encontrado"));
+
+        reporte.setEstado("LIMPIADO");
+
+        return reporteRepository.save(reporte);
+    }
+
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public Reporte actualizarEstado(Long id, String estado) {
+        if (estado == null || !java.util.Set.of("ACTIVO", "EN_PROCESO", "LIMPIADO").contains(estado)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado permitido: ACTIVO, EN_PROCESO o LIMPIADO");
+        }
+        Reporte reporte = reporteRepository.findById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Reporte no encontrado"));
+
+        reporte.setEstado(estado);
+
+        return reporteRepository.save(reporte);
     }
 }
