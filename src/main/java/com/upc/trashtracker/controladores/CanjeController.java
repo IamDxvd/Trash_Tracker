@@ -1,5 +1,7 @@
 package com.upc.trashtracker.controladores;
 
+import com.upc.trashtracker.dto.CanjeRequestDTO;
+import com.upc.trashtracker.dto.CanjeResponseDTO;
 import com.upc.trashtracker.dto.CanjeDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -47,5 +49,10 @@ public class CanjeController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         canjeService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/realizar-canje")
+    public ResponseEntity<CanjeResponseDTO> realizarCanje(@RequestBody CanjeRequestDTO request) {
+        return new ResponseEntity<>(canjeService.realizarCanje(request), HttpStatus.CREATED);
     }
 }

@@ -1,5 +1,6 @@
 package com.upc.trashtracker.controladores;
 
+import com.upc.trashtracker.entidades.Reporte;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springdoc.core.annotations.ParameterObject;
 
@@ -48,5 +49,68 @@ public class ReporteController {
     public ResponseEntity<Notificacion> notificarConfirmacion(@PathVariable("id") Long idReporte) {
         Notificacion notificacion = reporteService.enviarConfirmacion(idReporte);
         return new ResponseEntity<>(notificacion, HttpStatus.CREATED);
+    }
+
+    @PostMapping
+    public ResponseEntity<Reporte> guardar(@RequestBody Reporte reporte) {
+        return new ResponseEntity<>(reporteService.guardar(reporte), HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Reporte>> listarTodos() {
+        return ResponseEntity.ok(reporteService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Reporte> buscarPorId(@PathVariable Long id) {
+        return reporteService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Reporte> actualizar(@PathVariable Long id, @RequestBody Reporte reporte) {
+        return ResponseEntity.ok(reporteService.actualizar(id, reporte));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        reporteService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mapa")
+    public ResponseEntity<List<Reporte>> mapa(@RequestParam(required = false) String tipo) {
+        if (tipo != null) {
+            return ResponseEntity.ok(reporteService.filtrarPorTipo(tipo));
+        }
+        return ResponseEntity.ok(reporteService.listarMapa());
+    }
+
+    @GetMapping("/mapa/todos")
+    public ResponseEntity<List<Reporte>> todosMapa() {
+        return ResponseEntity.ok(reporteService.listarMapa());
+    }
+
+    @GetMapping("/mapa/buscar")
+    public ResponseEntity<List<Reporte>> buscarMapa(@RequestParam String texto) {
+        return ResponseEntity.ok(reporteService.buscar(texto));
+    }
+
+    @GetMapping("/mapa/{id}")
+    public ResponseEntity<Reporte> detalleMapa(@PathVariable Long id) {
+        return reporteService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/admin/{id}/limpiar")
+    public ResponseEntity<Reporte> limpiar(@PathVariable Long id) {
+        return ResponseEntity.ok(reporteService.marcarLimpio(id));
+    }
+
+    @PatchMapping("/admin/{id}/estado")
+    public ResponseEntity<Reporte> estado(@PathVariable Long id, @RequestParam String estado) {
+        return ResponseEntity.ok(reporteService.actualizarEstado(id, estado));
     }
 }

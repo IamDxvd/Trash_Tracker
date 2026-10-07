@@ -1,5 +1,8 @@
 package com.upc.trashtracker.servicios;
 
+import com.upc.trashtracker.dto.DesbloquearLogroRequestDTO;
+import com.upc.trashtracker.dto.LogroUsuarioResponseDTO;
+import java.util.stream.Collectors;
 import com.upc.trashtracker.dto.LogroUsuarioDTO;
 import com.upc.trashtracker.entidades.Logro;
 import com.upc.trashtracker.entidades.LogroUsuario;
@@ -76,5 +79,55 @@ public class LogroUsuarioService {
     @Transactional
     public void eliminar(Long id) {
         logroUsuarioRepository.deleteById(id);
+    }
+
+    // Funciones adicionales integradas del backend unificado.
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public LogroUsuarioResponseDTO desbloquearLogro(DesbloquearLogroRequestDTO request) {
+        usuarioRepository.buscarParaActualizar(request.getIdUsuario())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        // Validar si ya lo tiene desbloqueado
+        Optional<LogroUsuario> existente = logroUsuarioRepository
+                .findByUsuarioIdUsuarioAndLogroIdLogro(request.getIdUsuario(), request.getIdLogro());
+
+        if (existente.isPresent()) {
+            LogroUsuario lu = existente.get();
+            return mapearADTO(lu, true);
+        }
+
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + request.getIdUsuario()));
+
+        Logro logro = logroRepository.findById(request.getIdLogro())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Logro no encontrado con ID: " + request.getIdLogro()));
+
+        LogroUsuario logroUsuario = new LogroUsuario();
+        logroUsuario.setUsuario(usuario);
+        logroUsuario.setLogro(logro);
+        logroUsuario.setFechaObtenido(LocalDate.now());
+
+        logroUsuario = logroUsuarioRepository.save(logroUsuario);
+
+        return mapearADTO(logroUsuario, true);
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("@accesoIntegracion.esPropietario(#idUsuario)")
+    public List<LogroUsuarioResponseDTO> listarLogrosPorUsuario(Long idUsuario) {
+        List<LogroUsuario> obtenidos = logroUsuarioRepository.findByUsuarioIdUsuario(idUsuario);
+        return obtenidos.stream()
+                .map(lu -> mapearADTO(lu, true))
+                .collect(Collectors.toList());
+    }
+
+    private LogroUsuarioResponseDTO mapearADTO(LogroUsuario lu, boolean desbloqueado) {
+        LogroUsuarioResponseDTO dto = new LogroUsuarioResponseDTO();
+        dto.setIdLogroUsuario(lu.getIdLogroUsuario());
+        dto.setIdLogro(lu.getLogro().getIdLogro());
+        dto.setNombreLogro(lu.getLogro().getNombre());
+        dto.setCriterio(lu.getLogro().getCriterio());
+        dto.setFechaObtenido(lu.getFechaObtenido());
+        dto.setDesbloqueado(desbloqueado);
+        return dto;
     }
 }

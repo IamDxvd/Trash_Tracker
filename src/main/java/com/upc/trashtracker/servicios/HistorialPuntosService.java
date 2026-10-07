@@ -1,5 +1,7 @@
 package com.upc.trashtracker.servicios;
 
+import com.upc.trashtracker.dto.PuntosRequestDTO;
+import com.upc.trashtracker.dto.PuntosResponseDTO;
 import com.upc.trashtracker.dto.HistorialPuntosDTO;
 import com.upc.trashtracker.entidades.HistorialPuntos;
 import com.upc.trashtracker.entidades.Usuario;
@@ -65,5 +67,44 @@ public class HistorialPuntosService {
     @Transactional
     public void eliminar(Long id) {
         historialPuntosRepository.deleteById(id);
+    }
+
+    // Funciones adicionales integradas del backend unificado.
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMINISTRADOR')")
+    public PuntosResponseDTO insertarPuntos(PuntosRequestDTO request) {
+        if (request.getPuntos() == null || request.getPuntos() <= 0 || request.getMotivo() == null || request.getMotivo().isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Puntos positivos y motivo obligatorios");
+        }
+        Usuario usuario = usuarioRepository.buscarParaActualizar(request.getIdUsuario())
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + request.getIdUsuario()));
+
+        // 1. Registrar en el historial
+        HistorialPuntos historial = new HistorialPuntos();
+        historial.setCantidad(request.getPuntos());
+        historial.setMotivo(request.getMotivo());
+        historial.setFecha(LocalDateTime.now());
+        historial.setUsuario(usuario);
+        historial = historialPuntosRepository.save(historial);
+
+        // 2. Acumular puntos en la entidad Usuario
+        int saldoActual = usuario.getPuntosTotales() != null ? usuario.getPuntosTotales() : 0;
+        int nuevoSaldo = Math.addExact(saldoActual, request.getPuntos());
+        usuario.setPuntosTotales(nuevoSaldo);
+
+        // (Lógica opcional HU046: Subida automática de nivel)
+        usuario.setNivel(nuevoSaldo < 100 ? 1 : nuevoSaldo < 300 ? 2 : nuevoSaldo < 600 ? 3 : nuevoSaldo < 1000 ? 4 : 5);
+
+        usuarioRepository.save(usuario);
+
+        // 3. Retornar DTO con la respuesta limpia
+        PuntosResponseDTO response = new PuntosResponseDTO();
+        response.setIdHistorialPuntos(historial.getIdHistorialPuntos());
+        response.setPuntosOtorgados(historial.getCantidad());
+        response.setMotivo(historial.getMotivo());
+        response.setFecha(historial.getFecha());
+        response.setPuntosTotalesUsuario(nuevoSaldo);
+
+        return response;
     }
 }

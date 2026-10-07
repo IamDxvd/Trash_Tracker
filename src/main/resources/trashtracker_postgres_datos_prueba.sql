@@ -386,3 +386,67 @@ SELECT setval(pg_get_serial_sequence('notificacion', 'id_notificacion'), (SELECT
 SELECT setval(pg_get_serial_sequence('conversacion_chatbot', 'id_conversacion_chatbot'), (SELECT MAX(id_conversacion_chatbot) FROM conversacion_chatbot));
 SELECT setval(pg_get_serial_sequence('mensaje_chatbot', 'id_mensaje_chatbot'), (SELECT MAX(id_mensaje_chatbot) FROM mensaje_chatbot));
 SELECT setval(pg_get_serial_sequence('pregunta_frecuente', 'id_pregunta_frecuente'), (SELECT MAX(id_pregunta_frecuente) FROM pregunta_frecuente));
+
+-- =========================================================================
+-- [AGREGADO] Tablas de integracion (seguridad y ubicacion) que existen como
+-- entidades JPA pero no estaban en este script. Misma definicion que
+-- db/integracion-aditiva.sql. No modifica ninguna tabla anterior.
+-- =========================================================================
+DROP TABLE IF EXISTS estado_seguridad_usuario CASCADE;
+DROP TABLE IF EXISTS token_revocado CASCADE;
+DROP TABLE IF EXISTS token_recuperacion CASCADE;
+DROP TABLE IF EXISTS ubicacion_usuario CASCADE;
+
+CREATE TABLE ubicacion_usuario (
+                                   id_usuario BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                   latitud DOUBLE PRECISION NOT NULL CHECK (latitud BETWEEN -90 AND 90),
+                                   longitud DOUBLE PRECISION NOT NULL CHECK (longitud BETWEEN -180 AND 180)
+);
+
+CREATE TABLE token_recuperacion (
+                                    hash VARCHAR(64) PRIMARY KEY,
+                                    usuario_id BIGINT NOT NULL REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                    expira TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_token_recuperacion_usuario ON token_recuperacion(usuario_id);
+
+CREATE TABLE token_revocado (
+                                hash VARCHAR(64) PRIMARY KEY,
+                                expira TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE estado_seguridad_usuario (
+                                          usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+                                          tokens_invalidos_hasta TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+-- =========================================================================
+-- [AGREGADO] Data complementaria para las tablas que estaban vacias.
+-- No toca ningun registro anterior. Estas tablas no usan secuencias
+-- (su PK es el id del usuario o un hash), asi que no requieren setval.
+-- =========================================================================
+
+-- 22) UBICACION_USUARIO (ultima ubicacion conocida de cada usuario, cerca de sus reportes)
+INSERT INTO ubicacion_usuario (id_usuario, latitud, longitud) VALUES
+                                                                  (1, -12.046800, -77.042500),
+                                                                  (2, -12.050300, -77.038600),
+                                                                  (3, -12.049100, -77.040400),
+                                                                  (4, -12.048500, -77.039800),
+                                                                  (5, -12.046100, -77.043000) ON CONFLICT DO NOTHING;
+
+-- 23) TOKEN_RECUPERACION (hash SHA-256 de tokens de "olvide mi contrasena"; ya expirados, solo historico)
+INSERT INTO token_recuperacion (hash, usuario_id, expira) VALUES
+                                                              ('468723ff6d45a6b06c501af357035edbdefe6d516747df2b82eeb5568ca8ef48', 3, '2026-09-20 15:15:00-05'),
+                                                              ('78f06fc6ff2c26171343005b17b17dc1d6198ccd9bc08dc780cdf020e3f331b8', 4, '2026-09-28 19:45:00-05') ON CONFLICT DO NOTHING;
+
+-- 24) TOKEN_REVOCADO (hash SHA-256 de JWT invalidados al cerrar sesion; ya expirados)
+INSERT INTO token_revocado (hash, expira) VALUES
+                                              ('ab949d66d36eb2c0557a931b0ce866feaedac9419bd88ec41470f4467930bd6b', '2026-09-18 11:20:00-05'),
+                                              ('d4f804e1ce4d03b89a14aa792d04bed722aafa4f51527c8ef4bfdf3c36a3adc5', '2026-09-25 18:40:00-05'),
+                                              ('f7a2a58213b8eded858bba8c37ad7b2be9b2ba73e116be916befc6a950fb37f3', '2026-10-01 09:20:00-05') ON CONFLICT DO NOTHING;
+
+-- 25) ESTADO_SEGURIDAD_USUARIO (usuarios que restablecieron contrasena: los JWT emitidos
+--     ANTES de esta fecha quedan invalidos; los logins nuevos funcionan normal)
+INSERT INTO estado_seguridad_usuario (usuario_id, tokens_invalidos_hasta) VALUES
+                                                                              (3, '2026-09-20 15:05:00-05'),
+                                                                              (4, '2026-09-28 19:36:00-05') ON CONFLICT DO NOTHING;
