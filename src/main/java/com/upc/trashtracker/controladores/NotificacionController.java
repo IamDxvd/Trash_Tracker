@@ -30,19 +30,19 @@ public class NotificacionController {
         return ResponseEntity.ok(notificacionService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<Notificacion> buscarPorId(@PathVariable Long id) {
         return notificacionService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<Notificacion> actualizar(@PathVariable Long id, @RequestBody NotificacionDTO notificacionDTO) {
         return ResponseEntity.ok(notificacionService.actualizar(id, notificacionDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         notificacionService.eliminar(id);
         return ResponseEntity.noContent().build();

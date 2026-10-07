@@ -30,19 +30,19 @@ public class MiembroGrupoController {
         return ResponseEntity.ok(miembroGrupoService.listarTodos());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/buscar-por-Id/{id}")
     public ResponseEntity<MiembroGrupo> buscarPorId(@PathVariable Long id) {
         return miembroGrupoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<MiembroGrupo> actualizar(@PathVariable Long id, @RequestBody MiembroGrupoDTO miembroGrupoDTO) {
         return ResponseEntity.ok(miembroGrupoService.actualizar(id, miembroGrupoDTO));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         miembroGrupoService.eliminar(id);
         return ResponseEntity.noContent().build();
